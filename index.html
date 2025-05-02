@@ -2,67 +2,115 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Number Guessing Game</title>
+  <title>Multiplayer Number Guessing Game</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       padding: 40px;
-      background-color: #f0f0f0;
+      background-color: #f4f4f4;
       text-align: center;
     }
-    #game {
+    #game, #scoreboard {
       background: white;
       padding: 20px;
-      display: inline-block;
+      margin: 20px auto;
       border-radius: 10px;
       box-shadow: 0 0 10px #aaa;
+      width: 300px;
     }
-    input[type="number"] {
+    input, button {
       padding: 8px;
-      width: 80px;
+      margin: 5px;
     }
-    button {
-      padding: 8px 15px;
-      margin-left: 10px;
+    table {
+      width: 100%;
+      border-collapse: collapse;
     }
-    #message {
-      margin-top: 20px;
-      font-weight: bold;
+    th, td {
+      padding: 6px;
+      border: 1px solid #ddd;
     }
   </style>
 </head>
 <body>
+
   <div id="game">
-    <h1>Guess the Number!</h1>
+    <h2>Guess the Number!</h2>
     <p>Pick a number between 1 and 100</p>
-    <input type="number" id="guess" min="1" max="100" />
+    <input type="text" id="name" placeholder="Your Name"><br>
+    <input type="number" id="guess" min="1" max="100">
     <button onclick="checkGuess()">Guess</button>
-    <div id="message"></div>
+    <div id="message" style="margin-top: 10px;"></div>
+  </div>
+
+  <div id="scoreboard">
+    <h3>Scoreboard</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Attempts</th>
+          <th>Time</th>
+        </tr>
+      </thead>
+      <tbody id="scores">
+      </tbody>
+    </table>
   </div>
 
   <script>
-    const secretNumber = Math.floor(Math.random() * 100) + 1;
+    let secretNumber = Math.floor(Math.random() * 100) + 1;
     let attempts = 0;
 
     function checkGuess() {
       const userGuess = parseInt(document.getElementById('guess').value);
+      const userName = document.getElementById('name').value.trim();
       const message = document.getElementById('message');
+
+      if (!userName) {
+        message.textContent = '⛔ Please enter your name!';
+        message.style.color = 'red';
+        return;
+      }
+
+      if (!userGuess || userGuess < 1 || userGuess > 100) {
+        message.textContent = '⛔ Enter a valid number (1–100)';
+        message.style.color = 'red';
+        return;
+      }
+
       attempts++;
 
       if (userGuess === secretNumber) {
-        message.textContent = `🎉 Correct! You guessed it in ${attempts} tries.`;
+        message.textContent = `🎉 Correct! You got it in ${attempts} attempts.`;
         message.style.color = 'green';
+        updateScoreboard(userName, attempts);
+        setTimeout(resetGame, 3000);
       } else if (userGuess < secretNumber) {
         message.textContent = '📉 Too low! Try again.';
         message.style.color = 'blue';
-      } else if (userGuess > secretNumber) {
+      } else {
         message.textContent = '📈 Too high! Try again.';
         message.style.color = 'orange';
-      } else {
-        message.textContent = '⛔ Invalid input!';
-        message.style.color = 'red';
       }
     }
+
+    function updateScoreboard(name, tries) {
+      const scoresTable = document.getElementById('scores');
+      const row = scoresTable.insertRow();
+      row.insertCell(0).textContent = name;
+      row.insertCell(1).textContent = tries;
+      row.insertCell(2).textContent = new Date().toLocaleTimeString();
+    }
+
+    function resetGame() {
+      secretNumber = Math.floor(Math.random() * 100) + 1;
+      attempts = 0;
+      document.getElementById('guess').value = '';
+      document.getElementById('message').textContent = 'New game started!';
+      document.getElementById('message').style.color = 'black';
+    }
   </script>
+
 </body>
 </html>
