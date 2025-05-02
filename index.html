@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Number Guessing Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      background-color: #f0f0f0;
+      text-align: center;
+    }
+    #game {
+      background: white;
+      padding: 20px;
+      display: inline-block;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #aaa;
+    }
+    input[type="number"] {
+      padding: 8px;
+      width: 80px;
+    }
+    button {
+      padding: 8px 15px;
+      margin-left: 10px;
+    }
+    #message {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div id="game">
+    <h1>Guess the Number!</h1>
+    <p>Pick a number between 1 and 100</p>
+    <input type="number" id="guess" min="1" max="100" />
+    <button onclick="checkGuess()">Guess</button>
+    <div id="message"></div>
+  </div>
+
+  <script>
+    const secretNumber = Math.floor(Math.random() * 100) + 1;
+    let attempts = 0;
+
+    function checkGuess() {
+      const userGuess = parseInt(document.getElementById('guess').value);
+      const message = document.getElementById('message');
+      attempts++;
+
+      if (userGuess === secretNumber) {
+        message.textContent = `🎉 Correct! You guessed it in ${attempts} tries.`;
+        message.style.color = 'green';
+      } else if (userGuess < secretNumber) {
+        message.textContent = '📉 Too low! Try again.';
+        message.style.color = 'blue';
+      } else if (userGuess > secretNumber) {
+        message.textContent = '📈 Too high! Try again.';
+        message.style.color = 'orange';
+      } else {
+        message.textContent = '⛔ Invalid input!';
+        message.style.color = 'red';
+      }
+    }
+  </script>
+</body>
+</html>
