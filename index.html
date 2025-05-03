@@ -87,10 +87,10 @@
         updateScoreboard(userName, attempts);
         setTimeout(resetGame, 3000);
       } else if (userGuess < secretNumber) {
-        message.textContent = '📉 Too low! Try again. Attempt# ${attempts}.';
+        message.textContent = `📉 Too low! Try again. Attempt# ${attempts}.`;
         message.style.color = 'blue';
       } else {
-        message.textContent = '📈 Too high! Try again. Attempt# ${attempts}.';
+        message.textContent = `📈 Too high! Try again. Attempt# ${attempts}.`;
         message.style.color = 'orange';
       }
     }
