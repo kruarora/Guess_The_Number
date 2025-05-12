@@ -1,31 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
-
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyA9P91S4saLQaIVLMCYzkoKXLXS3CLyisw",
-    authDomain: "guess-the-number-b2e24.firebaseapp.com",
-    projectId: "guess-the-number-b2e24",
-    storageBucket: "guess-the-number-b2e24.firebasestorage.app",
-    messagingSenderId: "587154001631",
-    appId: "1:587154001631:web:bca2df15a4b8cb1755636a",
-    measurementId: "G-ZB2T7L4JMY"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>
   <meta charset="UTF-8">
-  <title>Kru got time</title>
+  <title>Kru Got Time</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -54,9 +31,31 @@
       border: 1px solid #ddd;
     }
   </style>
-</head>
-<body>
 
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA9P91S4saLQaIVLMCYzkoKXLXS3CLyisw",
+      authDomain: "guess-the-number-b2e24.firebaseapp.com",
+      projectId: "guess-the-number-b2e24",
+      storageBucket: "guess-the-number-b2e24.appspot.com",
+      messagingSenderId: "587154001631",
+      appId: "1:587154001631:web:bca2df15a4b8cb1755636a",
+      measurementId: "G-ZB2T7L4JMY"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Expose Firestore globally
+    window.db = db;
+    window.firestoreUtils = { collection, addDoc, getDocs, query, orderBy, limit };
+  </script>
+</head>
+
+<body>
   <div id="game">
     <h2>Guess the Number!</h2>
     <p>Pick a number between 1 and 100</p>
@@ -76,8 +75,7 @@
           <th>Time</th>
         </tr>
       </thead>
-      <tbody id="scores">
-      </tbody>
+      <tbody id="scores"></tbody>
     </table>
   </div>
 
@@ -118,28 +116,33 @@
       }
     }
 
-  async function updateScoreboard(name, tries) {
-    await db.collection("scoreboard").add({
-      name: name,
-      tries: tries,
-      time: new Date().toISOString()
-    });
-    displayScoreboard();
-  }
-
-  function displayScoreboard() {
-    const scoresTable = document.getElementById('scores');
-    scoresTable.innerHTML = '';
-    db.collection("scoreboard").orderBy("time", "desc").limit(10).get().then(snapshot => {
-      snapshot.forEach(doc => {
-        const entry = doc.data();
-        const row = scoresTable.insertRow();
-        row.insertCell(0).textContent = entry.name;
-        row.insertCell(1).textContent = entry.tries;
-        row.insertCell(2).textContent = new Date(entry.time).toLocaleTimeString();
+    async function updateScoreboard(name, tries) {
+      const { collection, addDoc } = window.firestoreUtils;
+      await addDoc(collection(window.db, "scoreboard"), {
+        name: name,
+        tries: tries,
+        time: new Date().toISOString()
       });
-    });
-  }
+      displayScoreboard();
+    }
+
+    function displayScoreboard() {
+      const { collection, getDocs, query, orderBy, limit } = window.firestoreUtils;
+      const scoresTable = document.getElementById('scores');
+      scoresTable.innerHTML = '';
+
+      const q = query(collection(window.db, "scoreboard"), orderBy("time", "desc"), limit(10));
+      getDocs(q).then(snapshot => {
+        snapshot.forEach(doc => {
+          const entry = doc.data();
+          const row = scoresTable.insertRow();
+          row.insertCell(0).textContent = entry.name;
+          row.insertCell(1).textContent = entry.tries;
+          row.insertCell(2).textContent = new Date(entry.time).toLocaleTimeString();
+        });
+      });
+    }
+
     function resetGame() {
       secretNumber = Math.floor(Math.random() * 100) + 1;
       attempts = 0;
@@ -147,7 +150,9 @@
       document.getElementById('message').textContent = 'New game started!';
       document.getElementById('message').style.color = 'black';
     }
-  </script>
 
+    // Load leaderboard on page load
+    window.onload = displayScoreboard;
+  </script>
 </body>
 </html>
