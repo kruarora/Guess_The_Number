@@ -118,14 +118,28 @@
       }
     }
 
-    function updateScoreboard(name, tries) {
-      const scoresTable = document.getElementById('scores');
-      const row = scoresTable.insertRow();
-      row.insertCell(0).textContent = name;
-      row.insertCell(1).textContent = tries;
-      row.insertCell(2).textContent = new Date().toLocaleTimeString();
-    }
+  async function updateScoreboard(name, tries) {
+    await db.collection("scoreboard").add({
+      name: name,
+      tries: tries,
+      time: new Date().toISOString()
+    });
+    displayScoreboard();
+  }
 
+  function displayScoreboard() {
+    const scoresTable = document.getElementById('scores');
+    scoresTable.innerHTML = '';
+    db.collection("scoreboard").orderBy("time", "desc").limit(10).get().then(snapshot => {
+      snapshot.forEach(doc => {
+        const entry = doc.data();
+        const row = scoresTable.insertRow();
+        row.insertCell(0).textContent = entry.name;
+        row.insertCell(1).textContent = entry.tries;
+        row.insertCell(2).textContent = new Date(entry.time).toLocaleTimeString();
+      });
+    });
+  }
     function resetGame() {
       secretNumber = Math.floor(Math.random() * 100) + 1;
       attempts = 0;
