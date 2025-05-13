@@ -58,7 +58,7 @@
 <body>
   <div id="game">
     <h2>Guess the Number!</h2>
-    <p>Pick a number between 1 and 100</p>
+    <p id="greeting">Hi Stranger!<br>Pick a number between 1 and 100</p>
     <input type="text" id="name" placeholder="Your Name"><br>
     <input type="number" id="guess" min="1" max="100">
     <button onclick="checkGuess()">Guess</button>
@@ -87,11 +87,17 @@
       const userGuess = parseInt(document.getElementById('guess').value);
       const userName = document.getElementById('name').value.trim();
       const message = document.getElementById('message');
+      const greeting = document.getElementById('greeting'); // get greeting element
 
       if (!userName) {
         message.textContent = '⛔ Please enter your name!';
         message.style.color = 'red';
         return;
+      }
+
+      if (!greeting.dataset.named) {
+        greeting.innerHTML = `Hi ${userName}! <br>Pick a number between 1 and 100`;
+        //greeting.dataset.named = "true"; // ensure it's only set once
       }
 
       if (!userGuess || userGuess < 1 || userGuess > 100) {
