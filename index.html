@@ -1,34 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Kru Got Time</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       padding: 40px;
-      background-color: #f4f4f4;
+      margin: 0;
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
       text-align: center;
+      color: #333;
     }
+
     #game, #scoreboard {
       background: white;
-      padding: 20px;
-      margin: 20px auto;
-      border-radius: 10px;
-      box-shadow: 0 0 10px #aaa;
-      width: 300px;
+      padding: 25px;
+      margin: 30px auto;
+      border-radius: 20px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 400px;
+      transition: transform 0.3s ease;
     }
+
+    #game:hover {
+      transform: scale(1.02);
+    }
+
+    h2, h3 {
+      margin-bottom: 15px;
+      color: #2c3e50;
+    }
+
+    p#greeting {
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+    }
+
     input, button {
-      padding: 8px;
-      margin: 5px;
+      padding: 10px;
+      margin: 10px 5px;
+      width: 80%;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+      box-sizing: border-box;
     }
+
+    button {
+      background: linear-gradient(135deg, #6e8efb, #a777e3);
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, #5b73e8, #9f5de2);
+      transform: scale(1.05);
+    }
+
+    #message {
+      margin-top: 15px;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
+      font-size: 0.95rem;
     }
+
     th, td {
-      padding: 6px;
+      padding: 8px 5px;
       border: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #ecf0f1;
+    }
+
+    @media (max-width: 500px) {
+      input, button {
+        width: 95%;
+      }
     }
   </style>
 
@@ -48,8 +105,6 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-
-    // Expose Firestore globally
     window.db = db;
     window.firestoreUtils = { collection, addDoc, getDocs, query, orderBy, limit };
   </script>
@@ -57,16 +112,16 @@
 
 <body>
   <div id="game">
-    <h2>Guess the Number!</h2>
+    <h2>🎯 Guess the Number!</h2>
     <p id="greeting">Hi Stranger!<br>Pick a number between 1 and 100</p>
     <input type="text" id="name" placeholder="Your Name"><br>
     <input type="number" id="guess" min="1" max="100">
     <button onclick="checkGuess()">Guess</button>
-    <div id="message" style="margin-top: 10px;"></div>
+    <div id="message"></div>
   </div>
 
   <div id="scoreboard">
-    <h3>Scoreboard</h3>
+    <h3>🏆 Scoreboard</h3>
     <table>
       <thead>
         <tr>
@@ -87,7 +142,7 @@
       const userGuess = parseInt(document.getElementById('guess').value);
       const userName = document.getElementById('name').value.trim();
       const message = document.getElementById('message');
-      const greeting = document.getElementById('greeting'); // get greeting element
+      const greeting = document.getElementById('greeting');
 
       if (!userName) {
         message.textContent = '⛔ Please enter your name!';
@@ -96,8 +151,8 @@
       }
 
       if (!greeting.dataset.named) {
-        greeting.innerHTML = `Hi ${userName}! <br>Pick a number between 1 and 100`;
-        //greeting.dataset.named = "true"; // ensure it's only set once
+        greeting.innerHTML = `Hi <strong>${userName}</strong>!<br>Pick a number between 1 and 100`;
+        greeting.dataset.named = "true";
       }
 
       if (!userGuess || userGuess < 1 || userGuess > 100) {
@@ -109,16 +164,16 @@
       attempts++;
 
       if (userGuess === secretNumber) {
-        message.textContent = `🎉 Correct! You got it in ${attempts} attempts.`;
-        message.style.color = 'green';
+        message.textContent = `🎉 Woohoo! You got it in ${attempts} attempts.`;
+        message.style.color = '#27ae60';
         updateScoreboard(userName, attempts);
         setTimeout(resetGame, 3000);
       } else if (userGuess < secretNumber) {
         message.textContent = `📉 Too low! Try again. Attempt# ${attempts}.`;
-        message.style.color = 'blue';
+        message.style.color = '#2980b9';
       } else {
         message.textContent = `📈 Too high! Try again. Attempt# ${attempts}.`;
-        message.style.color = 'orange';
+        message.style.color = '#e67e22';
       }
     }
 
@@ -153,11 +208,11 @@
       secretNumber = Math.floor(Math.random() * 100) + 1;
       attempts = 0;
       document.getElementById('guess').value = '';
-      document.getElementById('message').textContent = 'New game started!';
-      document.getElementById('message').style.color = 'black';
+      const msg = document.getElementById('message');
+      msg.textContent = '🔄 New game started!';
+      msg.style.color = '#2c3e50';
     }
 
-    // Load leaderboard on page load
     window.onload = displayScoreboard;
   </script>
 </body>
